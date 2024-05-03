@@ -5,6 +5,6 @@ import com.bookkeeping.managementservice.exception.BorrowingRecordServiceExcepti
 import com.bookkeeping.managementservice.exception.PatronServiceException;
 
 public interface BorrowingRecordService {
-    void borrowBook(Long id, Long patronId) throws BookServiceException, PatronServiceException, BorrowingRecordServiceException;
-    void returnBook(Long id, Long patronId) throws BookServiceException, PatronServiceException, BorrowingRecordServiceException;
+    void borrowBook(Long bookId, Long patronId) throws BookServiceException, PatronServiceException, BorrowingRecordServiceException;
+    void returnBook(Long bookId, Long patronId) throws BookServiceException, PatronServiceException, BorrowingRecordServiceException;
 }
