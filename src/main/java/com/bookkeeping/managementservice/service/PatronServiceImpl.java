@@ -6,7 +6,7 @@ import com.bookkeeping.managementservice.data.repository.PatronRepository;
 import com.bookkeeping.managementservice.exception.PatronServiceException;
 import com.bookkeeping.managementservice.payload.PatronRequest;
 import com.bookkeeping.managementservice.payload.PatronResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +16,17 @@ import java.util.Optional;
 @Service
 public class PatronServiceImpl implements PatronService {
 
-    @Autowired
-    private PatronRepository patronRepository;
+
+    private final PatronRepository patronRepository;
+
+    public PatronServiceImpl(PatronRepository patronRepository) {
+        this.patronRepository = patronRepository;
+    }
+
 
     @Override
     @Transactional
-    public PatronResponse registerPatron(PatronRequest patronRequest) throws PatronServiceException {
+    public PatronResponse registerPatron(PatronRequest patronRequest)  {
         Optional<PatronResponse> patronResponse = validatePatronRequest(patronRequest);
         return patronResponse.orElseGet(()-> getPatronResponse(patronRepository.save(Patron.builder()
                 .firstname(patronRequest.getFirstname())
@@ -61,8 +66,8 @@ public class PatronServiceImpl implements PatronService {
 
     @Override
     @Transactional
-    public PatronResponse updatePatron(Long patronId, PatronRequest patronRequest) throws PatronServiceException {
-        Patron existingPatron = getPatron(patronId);
+    public PatronResponse updatePatron(Long id, PatronRequest patronRequest) throws PatronServiceException {
+        Patron existingPatron = getPatron(id);
 
         if (patronRequest.getFirstname() != null){
             existingPatron.setFirstname(patronRequest.getFirstname());
@@ -84,8 +89,8 @@ public class PatronServiceImpl implements PatronService {
         return getPatronResponse(existingPatron);
     }
 
-    private Patron getPatron(Long patronId) throws PatronServiceException {
-        return patronRepository.findById(patronId).orElseThrow(()-> new PatronServiceException(" Patron with id " + patronId + "does not exist"));
+    private Patron getPatron(Long id) throws PatronServiceException {
+        return patronRepository.findById(id).orElseThrow(()-> new PatronServiceException(" Patron with id " + id + "does not exist"));
     }
 
     @Override
@@ -96,17 +101,19 @@ public class PatronServiceImpl implements PatronService {
     }
 
     @Override
-    public PatronResponse getPatronById(Long patronId) {
-        return null;
+    @Transactional
+    public PatronResponse getPatronById(Long id) throws PatronServiceException {
+        return getPatronResponse(getPatron(id));
     }
 
     @Override
-    public void deletePatronById(Long patronId) throws PatronServiceException {
-
+    @Transactional
+    public void deletePatronById(Long id) throws PatronServiceException {
+        patronRepository.delete(getPatron(id));
     }
 
     @Override
     public void deleteAllPatron() {
-
+        patronRepository.deleteAll();
     }
 }
